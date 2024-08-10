@@ -5,23 +5,20 @@ import mongoose from 'mongoose';
 // Crear Curso
 export const createCurso = async (req, res) => {
     try {
-        const { nombre, profesores  } = req.body;
+        const { nombre } = req.body;
 
-        // Validar que las ofertas educativas existan
-        if (profesores) {
-            const validProfesores = await Profesor.find({ '_id': { $in: profesores } });
-            if (validProfesores.length !== profesores.length) {
-                return res.status(400).json({ message: 'Una o más profesores no son validos' });
-            }
+        if (!nombre) {
+            return res.status(400).json({ message: 'El nombre del curso es requerido' });
         }
 
-        const nuevoCurso = new Curso({ nombre, profesores });
+        const nuevoCurso = new Curso({ nombre });
         await nuevoCurso.save();
         res.status(201).json(nuevoCurso);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
 
 // Obtener todos los Cursos
 export const getCursos = async (req, res) => {
