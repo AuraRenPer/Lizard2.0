@@ -58,20 +58,25 @@ export const updateCursos = async (req, res) => {
 
         // Validar ID del curso
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ message: 'ID de materia inválido' });
+            return res.status(400).json({ message: 'ID de curso inválido' });
         }
 
-        // Validar que los cursos existan
+        // Validar que los profesores existan
         if (profesores) {
             const validProfesor = await Profesor.find({ '_id': { $in: profesores } });
             if (validProfesor.length !== profesores.length) {
-                return res.status(400).json({ message: 'Una o más profesores no son válidos' });
+                return res.status(400).json({ message: 'Uno o más profesores no son válidos' });
             }
         }
+        // Actualizar curso
+        const cursoActualizado = await Curso.findByIdAndUpdate(
+            id, 
+            { nombre, profesores }, 
+            { new: true }
+        ).populate('profesores', 'nombre');
 
-        const cursoActualizado = await Curso.findByIdAndUpdate(id, { nombre, profesores }, { new: true }).populate('profesores', 'nombre');
         if (!cursoActualizado) {
-            return res.status(404).json({ message: 'Cursos no encontrado' });
+            return res.status(404).json({ message: 'Curso no encontrado' });
         }
 
         res.json(cursoActualizado);
@@ -79,6 +84,7 @@ export const updateCursos = async (req, res) => {
         res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
 
 // Eliminar Materia
 export const deleteCurso = async (req, res) => {
